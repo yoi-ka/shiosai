@@ -3,16 +3,22 @@
  * 自动加载所有 CSS 和 JS 文件
  */
 
-// 资源清单
+const currentScriptUrl = document.currentScript ? document.currentScript.src : window.location.href;
+
+// 截取前面的基准路径 (去掉 /js/loader.js)
+// 变成：https://xxx.github.io/repo
+const baseUrl = currentScriptUrl.substring(0, currentScriptUrl.lastIndexOf('/js/loader.js'));
+
+// 使用动态拼凑的绝对路径
 const rscManifest = {
     styles: [
-        './css/behindthescenes.css',
-        './css/highcourt.css'
+        `${baseUrl}/css/behindthescenes.css`,
+        `${baseUrl}/css/highcourt.css`
     ],
     scripts: [
-        './js/global.js',
-        './js/behindthescenes.js',
-        './js/highcourt.js'
+        `${baseUrl}/js/global.js`,
+        `${baseUrl}/js/behindthescenes.js`,
+        `${baseUrl}/js/highcourt.js`
     ]
 };
 
