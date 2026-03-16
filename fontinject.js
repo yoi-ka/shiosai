@@ -79,8 +79,8 @@ function createFontInjectionPanel() {
 
         <div>
         <span style="font-size: 12px;">支持纯链接、&lt;link&gt; 标签 或 @import 规则</span>
-        <textarea id="meowFM-link-input" placeholder="例:&#10;https://fonts.googleapis.com/css2?family=Roboto&#10;@import url('https://fonts.googleapis.com/css2?family=Oswald');"
-                  style="width: 100%; height: 180px; padding:8px; background: rgba(0,0,0,0.5); box-shadow: inset 0 0 2px black; border:none; border-radius: 4px; font-size: 14px; outline: none; resize: none; color: snow; white-space: pre;"></textarea>
+        <textarea id="meowFM-link-input" placeholder="例:&#10;https://fonts.googleapis.com/css2?family=Roboto&#10;&#10;@import url('https://fonts.googleapis.com/css2?family=Oswald');"
+                  style="width: 100%; height: 180px; padding:8px; background: rgba(0,0,0,0.5); box-shadow: inset 0 0 2px black; border:none; border-radius: 4px; font-size: 14px; outline: none; resize: none; color: snow; white-space: pre-line;"></textarea>
         </div>
 
         <div style="display: flex; justify-content: flex-end; margin-top: 8px">

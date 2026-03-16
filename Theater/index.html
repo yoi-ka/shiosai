@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, viewport-fit=cover, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <meta name="robots" content="noindex, nofollow">
+    <meta author="@YOIKA" copyright="© 2077 All rights reserved.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Doto:wght@100..900&family=Libre+Barcode+39&family=Permanent+Marker&family=Qwitcher+Grypen:wght@400;700&family=Rock+Salt&family=Rubik+Glitch&family=Stardos+Stencil:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://yoikafonts.pages.dev/851tegaki_zatsu/result.css">
+    <link rel="stylesheet" href="https://yoikafonts.pages.dev/planschrift/result.css">
+    <title>· Shiosai Theater ·</title>
+    <style>
+        /* ================= 基础容器 ================= */
+        body {
+            display: block;
+            box-sizing: border-box;
+            font-size: 16px;
+            cursor: default;
+        }
+
+        /* 默认/报错 环境主题 */
+        .theme-default {
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", sans-serif;
+            color: #333;
+        }
+
+        .error-box {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 20px;
+            margin: 0 auto;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            line-height: 1.5;
+            max-width: max-content;
+        }
+
+        code {
+            background-color: rgba(0, 0, 0, 0.80);
+            padding: 2px 4px 1px;
+            border-radius: 2px;
+            font-family: monospace;
+        }
+    </style>
+
+    <template id="ShiosaiGlobal-template">
+        <style>
+            /* ================= 遮罩层 ================= */
+            .shiosai-overlay {
+                display: flex;
+                position: absolute;
+                font-size: 16px;
+                inset: 0;
+                opacity: 0;
+                pointer-events: none;
+                backdrop-filter: blur(12px) brightness(0.8);
+                justify-content: center;
+                align-items: center;
+                transition: opacity 0.2s ease-out;
+                z-index: 9999;
+                box-sizing: border-box;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                cursor: default;
+            }
+
+            .shiosai-overlay::after {
+                content: "- 点击空白处关闭 -";
+                position: absolute;
+                bottom: 10%;
+                color: snow;
+                font-size: 0.85em;
+                letter-spacing: 2px;
+                padding-left: 2px;
+                pointer-events: none;
+                opacity: 1;
+                animation: close-tips 2s ease-out infinite;
+            }
+
+            @keyframes close-tips {
+
+                0%,
+                100% {
+                    opacity: 1;
+                }
+
+                50% {
+                    opacity: 0.4;
+                }
+            }
+
+            .shiosai-overlay.is-active {
+                opacity: 1;
+                pointer-events: auto;
+                transition: opacity 0.4s ease-out;
+            }
+
+            .shiosai-img-container {
+                display: none;
+                margin: 0 auto;
+                position: relative;
+            }
+
+            .shiosai-img-container.is-active {
+                display: flex;
+            }
+
+            .shiosai-panel {
+                display: none;
+                overflow-y: auto;
+                max-width: 420px;
+                margin: 0 auto;
+                max-height: 60vh;
+                max-height: 60dvh;
+                position: relative;
+            }
+
+            .shiosai-panel.is-active {
+                display: block;
+            }
+
+            .shiosai-panel::-webkit-scrollbar {
+                background: none;
+                width: 10px;
+            }
+
+            .shiosai-panel::-webkit-scrollbar-track {
+                background: none;
+            }
+
+            .shiosai-panel::-webkit-scrollbar-track:hover {
+                background: none;
+            }
+
+            .shiosai-panel::-webkit-scrollbar-thumb {
+                background: rgba(255, 250, 250, 0.2);
+                border: 1px solid transparent;
+                border-radius: 3px;
+                cursor: grab;
+                background-clip: padding-box;
+            }
+
+            .shiosai-panel::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 250, 250, 0.4);
+                border: 1px solid transparent;
+                border-radius: 3px;
+                background-clip: padding-box;
+            }
+
+            .shiosai-panel::-webkit-scrollbar-button {
+                background: none;
+                height: 6px;
+                width: 6px;
+            }
+
+            .shiosai-panel::before {
+                content: '';
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                z-index: -1;
+                opacity: 0.12;
+                filter: blur(6px);
+            }
+
+            /* ================= Cut 样式 ================= */
+            .shiosai-panel:has(>.script-container) {
+                padding: 0 6px 0 12px;
+                border-radius: 12px 4px 4px 12px;
+                max-width: 520px;
+                background-color: #43454d;
+                background-image:
+                    radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.5) 100%),
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+                box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.3);
+            }
+
+            .shiosai-panel:has(>.script-container)::before {
+                background: url('https://sharkpan.xyz/f/dD5jH8/film_grain.gif');
+                background-size: 80%;
+                z-index: 1;
+                opacity: 0.06;
+                filter: none;
+                animation: grain-jump 0.6s steps(4) infinite;
+            }
+
+            @keyframes grain-jump {
+                0% {
+                    background-position: 0 0;
+                }
+
+                25% {
+                    background-position: 10px 5px;
+                }
+
+                50% {
+                    background-position: -5px 10px;
+                }
+
+                75% {
+                    background-position: -10px -5px;
+                }
+
+                100% {
+                    background-position: 0 0;
+                }
+            }
+
+            .shiosai-overlay .script-container {
+                color: snow;
+                font-size: 0.8em;
+                line-height: 1.4;
+                font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+                padding: 20px 0;
+            }
+
+            /* 装饰：黑白相间的场记板斜条纹 */
+            .shiosai-overlay .script-container::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 30px;
+                width: 120%;
+                background: repeating-linear-gradient(-45deg, snow, snow 15px, #222 15px, #222 30px);
+                animation: slide-left 1.5s linear infinite, slider-flash 3s linear infinite;
+            }
+
+            .shiosai-overlay .script-container::after {
+                content: '';
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                height: 30px;
+                width: 120%;
+                background: repeating-linear-gradient(45deg, snow, snow 15px, #222 15px, #222 30px);
+                animation: slide-right 1.5s linear infinite, slider-flash 3s linear infinite;
+            }
+
+            @keyframes slide-left {
+                0% {
+                    transform: translateX(0);
+                }
+
+                100% {
+                    transform: translateX(-42px);
+                }
+            }
+
+            @keyframes slide-right {
+                0% {
+                    transform: translateX(-42px);
+                }
+
+                100% {
+                    transform: translateX(0);
+                }
+            }
+
+            @keyframes slider-flash {
+
+                0%,
+                100% {
+                    opacity: 1;
+                }
+
+                50% {
+                    opacity: 0.4;
+                }
+            }
+
+            /* 右上角场记信息 */
+            .shiosai-overlay .script-container>p {
+                text-transform: uppercase;
+                font-size: 0.8em;
+                color: #747d8c;
+                letter-spacing: 2px;
+                font-weight: bold;
+                padding: 10px 15px;
+                margin: 0;
+                justify-self: end;
+            }
+
+            .shiosai-overlay .script-line {
+                border-radius: 2px;
+                margin: 10px;
+                padding: 5px 0;
+                position: relative;
+                border-left: 2px solid transparent;
+                transition: all 0.3s ease-out;
+            }
+
+            .shiosai-overlay .script-dialogue {
+                margin: 10px 0 0 0;
+            }
+
+            .shiosai-overlay .script-line:hover {
+                border-left: 2px dotted #57606f;
+                background: rgba(255, 255, 255, 0.03);
+                padding-left: 10px;
+                margin-right: 0;
+            }
+
+            .shiosai-overlay .shiosai-char-name {
+                display: inline-block;
+                font-weight: bold;
+                border-radius: 2px;
+                padding: 2px 8px 0;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.6);
+                color: #1a1b1e;
+            }
+
+            /* 角色差分 */
+            .shiosai-char-name.char-yuki {
+                background-color: #ff6b81;
+            }
+
+            .shiosai-char-name.char-mio {
+                background-color: #3e99ce;
+            }
+
+            .shiosai-char-name.char-generic {
+                background-color: #ced6e0;
+            }
+
+            .shiosai-stage-dir {
+                color: #787c83;
+                font-size: 0.85em;
+                display: inline-block;
+            }
+
+            /* 动作 */
+            .shiosai-overlay .script-action {
+                display: block;
+                color: #a78e44;
+                margin: 10px;
+                padding: 15px 0;
+                font-weight: bold;
+                text-transform: uppercase;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.6s ease-out;
+            }
+
+            .shiosai-overlay .script-action:hover {
+                color: #e7b92f;
+                margin: 15px 10px;
+                padding: 10px 0;
+            }
+
+            .shiosai-overlay .script-action::before {
+                position: absolute;
+                content: '';
+                inset: 0;
+                width: calc(100% + 80px);
+                border-top: 1px dashed #747d8c;
+                pointer-events: none;
+                animation: action-border 4.2s linear infinite reverse;
+            }
+
+            .shiosai-overlay .script-action::after {
+                position: absolute;
+                content: '';
+                inset: 0;
+                width: calc(100% + 80px);
+                border-bottom: 1px dashed #747d8c;
+                pointer-events: none;
+                animation: action-border 4.6s linear infinite;
+            }
+
+            @keyframes action-border {
+                from {
+                    transform: translateX(0);
+                }
+
+                to {
+                    transform: translateX(-60px);
+                }
+            }
+
+            /* ================= Note 样式 ================= */
+            .shiosai-panel:has(>.note-container)::before {
+                background: url('https://i.pinimg.com/736x/1c/6b/7e/1c6b7e4289290f67dd638d3a059210e6.jpg');
+                background-size: 80%;
+                animation: grain-jump 12s ease-in-out infinite;
+            }
+
+            .shiosai-overlay .note-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 40px 30px 30px 20px;
+                margin: 20px 10px;
+                position: relative;
+                background-color: snow;
+                color: #456f7c;
+                text-shadow: 0 0 2px rgba(2, 4, 32, 0.4);
+                border-radius: 8px 8px 16px 8px;
+                box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+                max-width: 480px;
+                transform: rotate(-2.5deg);
+                background-image:
+                    radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.03) 100%),
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.2'/%3E%3C/svg%3E");
+            }
+
+            .shiosai-overlay .note-paper {
+                padding: 30px 15px 60px 15px;
+                font-family: "851tegakizatsu", serif;
+                font-style: italic;
+                font-weight: normal;
+                line-height: 1.5;
+                white-space: pre-line;
+                border: 4px solid #1a1a1a;
+                border-radius: 50% 15px 50% 15px / 15px 50% 15px 50%;
+            }
+
+            /* 猫猫装饰 */
+            .shiosai-overlay .note-paper:after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-image:
+                    url('https://sharkpan.xyz/f/JGKJIg/mm1.png'),
+                    url('https://sharkpan.xyz/f/OVMjfy/mm2.png');
+                background-position:
+                    left 35px bottom 40px,
+                    right 15px bottom 6px;
+                background-repeat: no-repeat, no-repeat;
+                background-size: 45px auto, 100px auto;
+                pointer-events: none;
+                filter: drop-shadow(-5px 0 0.1px #f2f2f2) drop-shadow(0 -5px 0.1px #f2f2f2);
+            }
+
+            /* 顶部装饰 */
+            .shiosai-overlay .note-container::before {
+                content: 'Shiosai Project';
+                top: 20px;
+                left: 25px;
+                font-family: "Doto", sans-serif;
+                font-optical-sizing: auto;
+                font-weight: 600;
+                font-variation-settings: "ROND" 0;
+                font-size: 0.8em;
+                font-variant: small-caps;
+                letter-spacing: 1px;
+                color: #444;
+                text-shadow: none;
+                position: absolute;
+                pointer-events: none;
+            }
+
+            /* 胶带 */
+            .shiosai-overlay .note-container::after {
+                content: '';
+                position: absolute;
+                top: -16px;
+                left: 30%;
+                transform: rotate(10deg);
+                width: 90px;
+                height: 38px;
+                background: rgba(255, 255, 255, 0.4);
+                box-shadow: 1px 1px 0.1px rgba(0, 0, 0, 0.05);
+                backdrop-filter: blur(2px);
+                border-left: 2px dotted rgba(255, 255, 255, 0.6);
+                border-right: 2px dashed rgba(255, 255, 255, 0.6);
+                z-index: 10;
+                pointer-events: none;
+            }
+
+            /* ================= Action 样式 ================= */
+            .shiosai-panel:has(>.action-container) {
+                overflow-y: visible;
+                margin: 0 auto;
+                max-height: 80vh;
+                max-height: 80dvh;
+                max-width: 100vw;
+                max-width: 100dvw;
+                position: relative;
+            }
+
+            /* ================= 判决书 ================= */
+            .shiosai-panel:has(>.verdict-paper) {
+                max-height: 80vh;
+                max-height: 80dvh;
+                overflow: visible;
+            }
+
+            .shiosai-panel:has(>.verdict-paper)::before {
+                background: url('https://i.pinimg.com/736x/6f/fb/d6/6ffbd6dc75571aef51e1b9cfb9e648fb.jpg');
+                background-size: 80%;
+                animation: grain-jump 12s ease-in-out infinite;
+            }
+
+            .shiosai-overlay .verdict-paper {
+                --color-red: #8b0000;
+                --color-blue: #2f588d;
+                font-family: "Courier New", Courier, monospace;
+                position: relative;
+                background: #f4f1ea;
+                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+                margin: 0 auto;
+                padding: 0 10px;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4), inset 0 0 0 1px #d0c8b6;
+                border-radius: 2px;
+                min-height: 60vh;
+                min-height: 60dvh;
+                color: #444;
+                user-select: none;
+            }
+
+            .shiosai-overlay .verdict-paper::before {
+                content: '';
+                position: absolute;
+                inset: -40px;
+                background-color: #404852;
+                border-radius: 0 4px 0 12px;
+                clip-path: polygon(14px 0, 100% 0, 100% 35%, calc(100% - 12px) calc(35% + 12px), calc(100% - 12px) calc(100% - 2px), calc(100% - 14px) 100%, 0 100%, 0% 25%, 12px calc(25% - 12px), 12px 2px);
+                background-image:
+                    radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.2) 100%),
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+                z-index: -2;
+                transform: rotate(1.2deg);
+                box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.5);
+            }
+
+            .shiosai-overlay .verdict-paper::after {
+                content: '';
+                position: absolute;
+                top: -30px;
+                left: -10px;
+                right: -40px;
+                bottom: -20px;
+                background-image: url('https://sharkpan.xyz/f/MK2mHa/paper.png');
+                background-size: 100% 100%;
+                z-index: -1;
+                filter: contrast(0.4) brightness(1.4) drop-shadow(2px 4px 1px rgba(0, 0, 0, 0.4));
+            }
+
+            /* --- 信头区域 --- */
+            .shiosai-overlay .letter-header {
+                display: flex;
+                margin: 40px 0 20px;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+                padding-bottom: 20px;
+            }
+
+            .shiosai-overlay .letter-logo {
+                width: 55px;
+                height: 55px;
+                flex-shrink: 0;
+                margin-right: 10px;
+                opacity: 0.9;
+            }
+
+            .shiosai-overlay .letter-org {
+                flex: 1;
+            }
+
+            .shiosai-overlay .org-name {
+                font-family: "Cinzel", serif;
+                color: var(--color-red);
+                font-variant: small-caps;
+                font-size: 1.35em;
+                font-weight: 500;
+                transform: scaleX(0.9);
+                transform-origin: left;
+                margin-bottom: 5px;
+            }
+
+            .shiosai-overlay .org-address {
+                color: #a78e44;
+                font-size: 0.65em;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                word-spacing: 1px;
+                border-radius: 2px;
+                background: rgba(0, 0, 0, 0.75);
+                padding: 1px 2px;
+                max-width: fit-content;
+            }
+
+            /* --- 档案元数据 --- */
+            .shiosai-overlay .letter-papper {
+                margin: 0 20px;
+            }
+
+            .shiosai-overlay .letter-meta {
+                display: flex;
+                flex-direction: column;
+                font-size: 0.8em;
+                margin-bottom: 40px;
+                color: #444;
+            }
+
+            .shiosai-overlay .meta-recipient {
+                position: relative;
+                min-height: 15px;
+                border-bottom: 1px solid #444;
+            }
+
+            .shiosai-overlay .meta-record {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+            }
+
+            .shiosai-overlay .meta-no {
+                font-family: "Qwitcher Grypen", cursive;
+                font-weight: 400;
+                font-size: 48px;
+                line-height: 1;
+                padding-right: 30px;
+                margin-bottom: -8px;
+                color: var(--color-blue);
+                position: absolute;
+                bottom: 0;
+                right: 0;
+            }
+
+            .shiosai-overlay .meta-record::before,
+            .shiosai-overlay .meta-no::before {
+                content: 'Record ID';
+                font-family: "Courier New", Courier, monospace;
+                font-size: 11px;
+                padding-left: 1px;
+                padding-right: 2px;
+                margin-right: 4px;
+                border-radius: 2px;
+                background-color: rgba(0, 0, 0, 0.15);
+            }
+
+            .shiosai-overlay .meta-no::before {
+                content: 'Copy No.';
+                margin-right: 10px;
+                color: #444;
+            }
+
+            .shiosai-overlay .meta-date {
+                width: fit-content;
+                margin: 20px 28px 0 auto;
+            }
+
+            /* --- 正文区域 --- */
+            .shiosai-overlay .verdict-content {
+                font-family: "Planschrift", serif;
+                font-size: 0.95em;
+                font-weight: 400;
+                line-height: 1.65;
+                white-space: pre-wrap;
+                user-select: text;
+            }
+
+            .shiosai-overlay .verdict-content::before {
+                content: 'To Dear Observer:\A';
+                font-family: "Cinzel", serif;
+                font-size: 16px;
+                font-weight: 500;
+                font-variant: small-caps;
+            }
+
+            /* --- 签名区域 --- */
+            .shiosai-overlay .letter-signature {
+                display: flex;
+                position: absolute;
+                flex-direction: column;
+                margin: 50px 20px 50px auto;
+                font-size: 0.6em;
+                white-space: pre-line;
+                justify-self: flex-end;
+                bottom: 0;
+            }
+
+            .shiosai-overlay .sign-marker {
+                font-family: "Qwitcher Grypen", cursive;
+                font-weight: 400;
+                font-size: 48px;
+                color: var(--color-blue);
+                transform: skewY(-8deg);
+                padding-left: 20px;
+                margin: -10px 0;
+            }
+
+            .shiosai-overlay .letter-signature::before {
+                content: 'Cordially yours,';
+            }
+
+            .shiosai-overlay .letter-signature::after {
+                content: 'Yoika\ASite Architect';
+                text-align: center;
+            }
+
+            /* --- 印章动画 --- */
+            .shiosai-overlay .stamp-seal {
+                position: absolute;
+                bottom: 50px;
+                left: 120px;
+                font-size: 2em;
+                font-weight: 700;
+                font-family: "Stardos Stencil", "Courier New", monospace;
+                color: rgba(177, 0, 0, 0.8);
+                text-transform: uppercase;
+                padding: 8px 15px 3px;
+                border: 4px solid;
+                border-radius: 6px;
+                box-shadow: inset 0 0 0 3px #f4f1ea, inset 0 0 0 4px currentColor;
+                mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.2 0.16' numOctaves='3' result='n'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 7 -1.8' in='n'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='black' filter='url(%23g)'/%3E%3C/svg%3E");
+                pointer-events: none;
+                opacity: 0;
+                z-index: 1;
+                mix-blend-mode: multiply;
+            }
+
+            .shiosai-panel.court-data.is-active .stamp-seal {
+                animation: stamp-smash 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s forwards;
+            }
+
+            @keyframes stamp-smash {
+                0% {
+                    transform: translateX(-50%) rotate(-15deg) scale(3);
+                    opacity: 0;
+                }
+
+                50% {
+                    transform: translateX(-50%) rotate(-8deg) scale(0.9);
+                    opacity: 1;
+                }
+
+                100% {
+                    transform: translateX(-50%) rotate(-8deg) scale(1, 1.2);
+                    opacity: 0.8;
+                }
+            }
+
+            /* 图片放大 */
+            .shiosai-overlay .open-img-border {
+                padding: 50px;
+                background-color: #fffbf0;
+                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
+                border-radius: 2px;
+            }
+
+            .shiosai-overlay .img-frame {
+                aspect-ratio: 3 / 2;
+                height: 60vh;
+                height: 60dvh;
+                border-radius: 2px;
+                background-size: cover;
+                background-position: center;
+            }
+
+            @media screen and (max-width:768px) {
+                .shiosai-overlay .img-frame {
+                    height: auto;
+                    width: 100vw;
+                    width: 100dvw;
+                }
+
+            }
+
+            /* show me an egg */
+            .baka-shake-active {
+                overflow: hidden;
+                animation: bakaGlitchShake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+            }
+
+            @keyframes bakaGlitchShake {
+                0% {
+                    transform: translate(2px, 1px) rotate(0deg);
+                }
+
+                10% {
+                    transform: translate(-1px, -2px) rotate(-1deg);
+                }
+
+                20% {
+                    transform: translate(-3px, 0px) rotate(1deg);
+                }
+
+                30% {
+                    transform: translate(3px, 2px) rotate(0deg);
+                }
+
+                40% {
+                    transform: translate(1px, -1px) rotate(1deg);
+                }
+
+                50% {
+                    transform: translate(-1px, 2px) rotate(-1deg);
+                }
+
+                60% {
+                    transform: translate(-3px, 1px) rotate(0deg);
+                }
+
+                70% {
+                    transform: translate(3px, 1px) rotate(-1deg);
+                }
+
+                80% {
+                    transform: translate(-1px, -1px) rotate(1deg);
+                }
+
+                90% {
+                    transform: translate(1px, 2px) rotate(0deg);
+                }
+
+                100% {
+                    transform: translate(1px, -2px) rotate(-1deg);
+                }
+            }
+
+            #baka-alert {
+                position: fixed;
+                bottom: 30px;
+                right: -400px;
+                width: 320px;
+                background: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(4px);
+                border-radius: 4px 0 0 4px;
+                border-left: 4px solid #549688;
+                font-family: "Planschrift", serif;
+                padding: 16px;
+                z-index: 999999;
+                pointer-events: none;
+                transition: right 0.2s ease-out;
+            }
+
+            #baka-alert.show {
+                right: 30px;
+                animation: baka-slide-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            #baka-alert .alert-header {
+                color: #c91f37;
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 8px;
+                border-bottom: 1px dashed;
+                padding-bottom: 8px;
+            }
+
+            #baka-alert .alert-body {
+                color: snow;
+                font-size: 14px;
+                line-height: 1.5;
+                opacity: 0.6;
+            }
+
+            @keyframes baka-slide-in {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        </style>
+    </template>
+</head>
+
+<body>
+    <template id="Shiosai-raw-data">
+        $1
+    </template>
+
+    <div id="Shiosai-render-target"></div>
+
+    <script src="./js/loader.js"></script>
+</body>
+
+</html>
