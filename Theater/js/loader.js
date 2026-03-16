@@ -7,7 +7,7 @@ const currentScriptUrl = document.currentScript ? document.currentScript.src : w
 
 // 截取前面的基准路径 (去掉 /js/loader.js)
 // 变成：https://xxx.github.io/repo
-const baseUrl = currentScriptUrl.substring(0, currentScriptUrl.lastIndexOf('/js/loader.js'));
+const baseUrl = currentScriptUrl.substring(0, currentScriptUrl.lastIndexOf('/js/'));
 
 // 使用动态拼凑的绝对路径
 const rscManifest = {

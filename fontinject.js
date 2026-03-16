@@ -84,7 +84,7 @@ function createFontInjectionPanel() {
         </div>
 
         <div style="display: flex; justify-content: flex-end; margin-top: 8px">
-            <button id="meowFM-apply-btn" style="width: 100%; padding: 8px; background-color: #2563eb; color: snow; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background-color 0.2s;">解析并应用</button>
+            <button id="meowFM-apply-btn" style="width: 100%; padding: 8px; background-color: #245eda; color: snow; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background-color 0.2s;">解析并应用</button>
         </div>
     `;
 
